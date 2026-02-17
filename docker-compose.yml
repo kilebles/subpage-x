@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  subpage:
+    build:
+      context: .
+      args:
+        VITE_API_URL: ${VITE_API_URL}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      # Let's Encrypt сертификаты
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+    restart: unless-stopped

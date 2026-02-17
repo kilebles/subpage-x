@@ -1,0 +1,64 @@
+.card {
+  width: 100%;
+  max-width: 600px;
+  padding: 32px;
+  border-radius: var(--radius-lg);
+  background-color: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.title {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.loading {
+  padding: 40px;
+  text-align: center;
+  color: var(--color-text-secondary);
+}
+
+.appBanner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, rgba(88, 213, 192, 0.15) 0%, rgba(88, 213, 192, 0.05) 100%);
+  border: 1px solid rgba(88, 213, 192, 0.3);
+  margin-bottom: 32px;
+}
+
+.indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--color-yellow);
+}
+
+.appName {
+  flex: 1;
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--color-accent);
+}
+
+.appIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.steps {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
