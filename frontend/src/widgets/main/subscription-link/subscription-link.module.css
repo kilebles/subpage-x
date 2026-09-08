@@ -31,6 +31,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-shrink: 0;
     width: 42px;
     height: 42px;
     padding: 0;
@@ -56,6 +57,22 @@
 .actionIcon:focus-visible {
     outline: 2px solid #a855f7;
     outline-offset: 2px;
+}
+
+/* At 320px the logo and three 42px buttons no longer fit on one line. */
+@media (max-width: 480px) {
+    .qrToggle {
+        width: 36px;
+        height: 36px;
+    }
+
+    .actionIcon {
+        --ai-size: 36px;
+    }
+
+    .actions {
+        --group-gap: 6px;
+    }
 }
 
 .qrCaption {

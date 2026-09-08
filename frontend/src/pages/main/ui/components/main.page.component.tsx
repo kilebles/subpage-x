@@ -44,10 +44,10 @@ export const MainPageComponent = ({ isMobile }: IMainPageComponentProps) => {
 
     return (
         <Page>
-            <Container maw={1200} pt="md" px={{ base: 'md', sm: 'lg', md: 'xl' }}>
+            <Container maw={900} pt="md" px={{ base: 'md', sm: 'lg', md: 'xl' }}>
                 <Box className="header-wrapper" px={{ base: 'md', sm: 'lg', md: 'xl' }} py={{ base: 'sm', md: 'lg' }}>
-                    <Group justify="space-between">
-                        <Group gap="sm" style={{ userSelect: 'none' }} wrap="nowrap">
+                    <Group justify="space-between" wrap="nowrap">
+                        <Group gap="sm" style={{ userSelect: 'none', minWidth: 0 }} wrap="nowrap">
                             {hasCustomLogo ? (
                                 <Image
                                     alt="logo"
@@ -67,6 +67,11 @@ export const MainPageComponent = ({ isMobile }: IMainPageComponentProps) => {
                                 fw={700}
                                 order={4}
                                 size="lg"
+                                style={{
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                    whiteSpace: 'nowrap'
+                                }}
                             >
                                 {brandName}
                             </Title>
@@ -81,7 +86,7 @@ export const MainPageComponent = ({ isMobile }: IMainPageComponentProps) => {
             </Container>
 
             <Container
-                maw={1200}
+                maw={900}
                 px={{ base: 'md', sm: 'lg', md: 'xl' }}
                 py="xl"
                 style={{ position: 'relative', zIndex: 1 }}

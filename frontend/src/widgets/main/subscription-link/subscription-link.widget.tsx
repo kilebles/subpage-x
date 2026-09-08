@@ -97,7 +97,7 @@ export const SubscriptionLinkWidget = ({ hideGetLink, supportUrl }: IProps) => {
     }
 
     return (
-        <Group gap="xs" ms="auto" wrap="nowrap">
+        <Group className={classes.actions} gap="xs" ms="auto" wrap="nowrap">
             {!hideGetLink && (
                 <Tooltip
                     label={copied ? t(baseTranslations.linkCopied) : t(baseTranslations.copyLink)}

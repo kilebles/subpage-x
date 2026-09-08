@@ -301,21 +301,6 @@ export const ConnectWidget = () => {
                                                                     className={classes.primaryBtn}
                                                                     href={link}
                                                                     key={j}
-                                                                    style={{
-                                                                        backgroundColor:
-                                                                            colors.text === '#ffffff'
-                                                                                ? '#1a1a2e'
-                                                                                : colors.text,
-                                                                        color:
-                                                                            colors.text === '#ffffff'
-                                                                                ? '#ffffff'
-                                                                                : '#000000',
-                                                                        boxShadow: `0 0 16px rgba(${colors.rgb},0.35)`,
-                                                                        border:
-                                                                            colors.text === '#ffffff'
-                                                                                ? '1px solid rgba(255,255,255,0.3)'
-                                                                                : 'none'
-                                                                    }}
                                                                 >
                                                                     <IconPlus size={13} />
                                                                     {t(btn.text)}

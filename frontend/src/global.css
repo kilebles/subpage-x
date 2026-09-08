@@ -21,6 +21,13 @@ body {
     border-radius: 16px;
 }
 
+/* Otherwise the brand name gets ellipsised next to the three action buttons. */
+@media (max-width: 480px) {
+    .header-wrapper h4 {
+        font-size: 16px;
+    }
+}
+
 .logo-text-highlight {
     color: var(--mantine-color-cyan-4);
 }

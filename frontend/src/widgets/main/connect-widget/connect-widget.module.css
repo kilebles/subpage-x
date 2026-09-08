@@ -2,7 +2,7 @@
     height: 100%;
     display: flex;
     flex-direction: column;
-    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-family: var(--mantine-font-family-monospace);
     position: relative;
     z-index: 1;
     background: rgba(15, 15, 20, 0.9);
@@ -16,7 +16,6 @@
 }
 
 .body {
-    overflow-y: auto;
     padding: 24px 20px;
 }
 
@@ -63,11 +62,24 @@
 
 .switcherIcons {
     display: flex;
+    flex-wrap: wrap;
     gap: 8px;
 }
 
 .platformBtnWrap {
     position: relative;
+}
+
+/* Seven platforms still fit on one line on a 320px screen at this size. */
+@media (max-width: 379px) {
+    .switcherIcons {
+        gap: 4px;
+    }
+
+    .platformBtn {
+        width: 30px;
+        height: 30px;
+    }
 }
 
 .platformBtn {
@@ -102,10 +114,17 @@
     }
 }
 
+/* Below the desktop breakpoint the app icons wrap onto their own line, where
+   pushing them right leaves them stranded away from the platform row. */
 .appSwitcher {
     display: flex;
     gap: 8px;
-    margin-inline-start: auto;
+}
+
+@media (min-width: 768px) {
+    .appSwitcher {
+        margin-inline-start: auto;
+    }
 }
 
 .platformBtn:focus-visible,
@@ -191,27 +210,39 @@
 }
 
 .tooltip {
-    position: absolute;
-    bottom: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-    margin-bottom: 8px;
-    padding: 4px 8px;
-    background: #161b22;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    font-size: 10px;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    color: rgba(255, 255, 255, 0.6);
-    white-space: nowrap;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.2s;
+    display: none;
 }
 
-.platformBtnWrap:hover .tooltip,
-.appBtnWrap:hover .tooltip {
-    opacity: 1;
+/* Touch devices have no real hover: the tooltip would stick after a tap. */
+@media (hover: hover) and (pointer: fine) {
+    .tooltip {
+        display: block;
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        margin-top: 8px;
+        padding: 4px 8px;
+        background: #161b22;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        font-size: 10px;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        color: rgba(255, 255, 255, 0.6);
+        white-space: nowrap;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.2s;
+        z-index: 2;
+        margin-top: 12px;
+    }
+
+    .platformBtnWrap:hover .tooltip,
+    .appBtnWrap:hover .tooltip,
+    .platformBtn:focus-visible + .tooltip,
+    .appBtn:focus-visible + .tooltip {
+        opacity: 1;
+    }
 }
 
 .platformFade {
@@ -231,13 +262,17 @@
 
 .step {
     display: flex;
-    gap: 16px;
+    gap: 12px;
 }
 
 @media (min-width: 768px) {
     .step {
         gap: 32px;
     }
+}
+
+.step:last-child .stepContent {
+    padding-bottom: 0;
 }
 
 .stepNodeCol {
@@ -335,17 +370,20 @@
     }
 }
 
+/* Proportional face: monospace turned long Cyrillic descriptions into six
+   short lines on narrow screens. */
 .stepDesc {
+    font-family: var(--mantine-font-family);
     font-size: 14px;
-    color: rgba(255, 255, 255, 0.5);
-    line-height: 1.5;
-    max-width: 32rem;
+    color: rgba(255, 255, 255, 0.62);
+    line-height: 1.55;
+    max-width: 34rem;
     overflow-wrap: break-word;
 }
 
 @media (min-width: 768px) {
     .stepDesc {
-        font-size: 16px;
+        font-size: 15px;
         line-height: 1.6;
     }
 }
@@ -377,8 +415,13 @@
     }
 }
 
+/* One accent for the primary action on every platform: the old per-platform
+   colour made the iOS button (#1a1a2e) blend into the card. */
 .primaryBtn {
     font-family: inherit;
+    background: #a855f7;
+    color: #fff;
+    box-shadow: 0 0 18px rgba(168, 85, 247, 0.4);
     font-size: 12px;
     letter-spacing: 0.15em;
     text-transform: uppercase;
