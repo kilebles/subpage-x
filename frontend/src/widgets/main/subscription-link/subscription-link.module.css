@@ -59,8 +59,9 @@
     outline-offset: 2px;
 }
 
-/* At 320px the logo and three 42px buttons no longer fit on one line. */
-@media (max-width: 480px) {
+/* Only below 360px does the logo stop fitting next to three 42px buttons;
+   above that the larger target is kept. */
+@media (max-width: 359px) {
     .qrToggle {
         width: 36px;
         height: 36px;

@@ -23,6 +23,8 @@ function NodeConnector({ color = '168,85,247', delay = 0 }: { color?: string; de
         const ctx = canvas.getContext('2d')!
         let t = delay
 
+        const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
         const resize = () => {
             canvas.width = canvas.offsetWidth * window.devicePixelRatio
             canvas.height = canvas.offsetHeight * window.devicePixelRatio
@@ -91,7 +93,19 @@ function NodeConnector({ color = '168,85,247', delay = 0 }: { color?: string; de
             rafRef.current = requestAnimationFrame(draw)
         }
 
-        rafRef.current = requestAnimationFrame(draw)
+        if (reducedMotion) {
+            const w = canvas.offsetWidth
+            const h = canvas.offsetHeight
+            ctx.beginPath()
+            ctx.moveTo(w / 2, 0)
+            ctx.lineTo(w / 2, h)
+            ctx.strokeStyle = `rgba(${color},0.15)`
+            ctx.lineWidth = 1
+            ctx.stroke()
+        } else {
+            rafRef.current = requestAnimationFrame(draw)
+        }
+
         return () => {
             cancelAnimationFrame(rafRef.current)
             window.removeEventListener('mousemove', onMouseMove)
@@ -113,17 +127,20 @@ const PLATFORM_KEYS: TSubscriptionPagePlatformKey[] = [
     'androidTV'
 ]
 
+// `solid`/`onSolid` are the filled primary button. Apple platforms use white
+// on black rather than their accent, which would be #1a1a2e against a
+// near-black card.
 const PLATFORM_COLORS: Record<
     string,
-    { bg: string; border: string; rgb: string; shadow: string; text: string }
+    { bg: string; border: string; onSolid: string; rgb: string; shadow: string; solid: string; text: string }
 > = {
-    ios: { border: 'rgba(255,255,255,0.5)', text: '#ffffff', bg: 'rgba(255,255,255,0.08)', shadow: 'rgba(255,255,255,0.15)', rgb: '255,255,255' },
-    android: { border: '#3ddc84', text: '#3ddc84', bg: 'rgba(61,220,132,0.1)', shadow: 'rgba(61,220,132,0.25)', rgb: '61,220,132' },
-    windows: { border: '#00adef', text: '#00adef', bg: 'rgba(0,173,239,0.1)', shadow: 'rgba(0,173,239,0.25)', rgb: '0,173,239' },
-    macos: { border: '#007aff', text: '#007aff', bg: 'rgba(0,122,255,0.1)', shadow: 'rgba(0,122,255,0.25)', rgb: '0,122,255' },
-    linux: { border: '#ffb900', text: '#ffb900', bg: 'rgba(255,185,0,0.1)', shadow: 'rgba(255,185,0,0.25)', rgb: '255,185,0' },
-    appleTV: { border: 'rgba(255,255,255,0.5)', text: '#ffffff', bg: 'rgba(255,255,255,0.08)', shadow: 'rgba(255,255,255,0.15)', rgb: '255,255,255' },
-    androidTV: { border: '#3ddc84', text: '#3ddc84', bg: 'rgba(61,220,132,0.1)', shadow: 'rgba(61,220,132,0.25)', rgb: '61,220,132' }
+    ios: { border: 'rgba(255,255,255,0.5)', text: '#ffffff', bg: 'rgba(255,255,255,0.08)', shadow: 'rgba(255,255,255,0.15)', rgb: '255,255,255', solid: '#ffffff', onSolid: '#000000' },
+    android: { border: '#3ddc84', text: '#3ddc84', bg: 'rgba(61,220,132,0.1)', shadow: 'rgba(61,220,132,0.25)', rgb: '61,220,132', solid: '#3ddc84', onSolid: '#000000' },
+    windows: { border: '#00adef', text: '#00adef', bg: 'rgba(0,173,239,0.1)', shadow: 'rgba(0,173,239,0.25)', rgb: '0,173,239', solid: '#00adef', onSolid: '#000000' },
+    macos: { border: '#007aff', text: '#007aff', bg: 'rgba(0,122,255,0.1)', shadow: 'rgba(0,122,255,0.25)', rgb: '0,122,255', solid: '#007aff', onSolid: '#ffffff' },
+    linux: { border: '#ffb900', text: '#ffb900', bg: 'rgba(255,185,0,0.1)', shadow: 'rgba(255,185,0,0.25)', rgb: '255,185,0', solid: '#ffb900', onSolid: '#000000' },
+    appleTV: { border: 'rgba(255,255,255,0.5)', text: '#ffffff', bg: 'rgba(255,255,255,0.08)', shadow: 'rgba(255,255,255,0.15)', rgb: '255,255,255', solid: '#ffffff', onSolid: '#000000' },
+    androidTV: { border: '#3ddc84', text: '#3ddc84', bg: 'rgba(61,220,132,0.1)', shadow: 'rgba(61,220,132,0.25)', rgb: '61,220,132', solid: '#3ddc84', onSolid: '#000000' }
 }
 
 const PLATFORM_ICONS: Record<string, ({ className }: { className?: string }) => React.JSX.Element> = {
@@ -231,7 +248,15 @@ export const ConnectWidget = () => {
                             </div>
 
                             {apps.length > 1 && (
-                                <div className={classes.appSwitcher}>
+                                <div
+                                    className={classes.appSwitcher}
+                                    style={
+                                        {
+                                            '--platform-accent': colors.text,
+                                            '--platform-glow': `rgba(${colors.rgb},0.6)`
+                                        } as React.CSSProperties
+                                    }
+                                >
                                     {apps.map((appOption, index) => {
                                         const activeApp = index === selectedAppIndex
                                         const icon = appOption.svgIconKey
@@ -301,6 +326,11 @@ export const ConnectWidget = () => {
                                                                     className={classes.primaryBtn}
                                                                     href={link}
                                                                     key={j}
+                                                                    style={{
+                                                                        backgroundColor: colors.solid,
+                                                                        color: colors.onSolid,
+                                                                        boxShadow: `0 0 18px rgba(${colors.rgb},0.35)`
+                                                                    }}
                                                                 >
                                                                     <IconPlus size={13} />
                                                                     {t(btn.text)}
