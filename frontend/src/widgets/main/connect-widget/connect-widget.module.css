@@ -105,7 +105,16 @@
 .appSwitcher {
     display: flex;
     gap: 8px;
-    margin-left: auto;
+    margin-inline-start: auto;
+}
+
+.platformBtn:focus-visible,
+.appBtn:focus-visible,
+.primaryBtn:focus-visible,
+.copyBtn:focus-visible,
+.externalBtn:focus-visible {
+    outline: 2px solid #a855f7;
+    outline-offset: 2px;
 }
 
 .appBtnWrap {

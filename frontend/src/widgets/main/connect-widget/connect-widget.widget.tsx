@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { IconCheck, IconCopy, IconExternalLink, IconPlus } from '@tabler/icons-react'
 import { TSubscriptionPagePlatformKey } from '@remnawave/subscription-page-types'
 import { FaAndroid, FaApple, FaLinux, FaWindows } from 'react-icons/fa'
-import { TbBrandFinder } from 'react-icons/tb'
+import { TbBrandFinder, TbDeviceTv } from 'react-icons/tb'
 
 import { constructSubscriptionUrl } from '@shared/utils/construct-subscription-url'
 import { getIconFromLibrary } from '@shared/utils/config-parser'
@@ -100,10 +100,18 @@ function NodeConnector({ color = '168,85,247', delay = 0 }: { color?: string; de
         }
     }, [delay, color])
 
-    return <canvas className={classes.connectorCanvas} ref={canvasRef} style={{ display: 'block', minHeight: '3rem', width: '100%' }} />
+    return <canvas aria-hidden="true" className={classes.connectorCanvas} ref={canvasRef} style={{ display: 'block', minHeight: '3rem', width: '100%' }} />
 }
 
-const PLATFORM_KEYS: TSubscriptionPagePlatformKey[] = ['ios', 'android', 'windows', 'macos', 'linux']
+const PLATFORM_KEYS: TSubscriptionPagePlatformKey[] = [
+    'ios',
+    'android',
+    'windows',
+    'macos',
+    'linux',
+    'appleTV',
+    'androidTV'
+]
 
 const PLATFORM_COLORS: Record<
     string,
@@ -113,7 +121,9 @@ const PLATFORM_COLORS: Record<
     android: { border: '#3ddc84', text: '#3ddc84', bg: 'rgba(61,220,132,0.1)', shadow: 'rgba(61,220,132,0.25)', rgb: '61,220,132' },
     windows: { border: '#00adef', text: '#00adef', bg: 'rgba(0,173,239,0.1)', shadow: 'rgba(0,173,239,0.25)', rgb: '0,173,239' },
     macos: { border: '#007aff', text: '#007aff', bg: 'rgba(0,122,255,0.1)', shadow: 'rgba(0,122,255,0.25)', rgb: '0,122,255' },
-    linux: { border: '#ffb900', text: '#ffb900', bg: 'rgba(255,185,0,0.1)', shadow: 'rgba(255,185,0,0.25)', rgb: '255,185,0' }
+    linux: { border: '#ffb900', text: '#ffb900', bg: 'rgba(255,185,0,0.1)', shadow: 'rgba(255,185,0,0.25)', rgb: '255,185,0' },
+    appleTV: { border: 'rgba(255,255,255,0.5)', text: '#ffffff', bg: 'rgba(255,255,255,0.08)', shadow: 'rgba(255,255,255,0.15)', rgb: '255,255,255' },
+    androidTV: { border: '#3ddc84', text: '#3ddc84', bg: 'rgba(61,220,132,0.1)', shadow: 'rgba(61,220,132,0.25)', rgb: '61,220,132' }
 }
 
 const PLATFORM_ICONS: Record<string, ({ className }: { className?: string }) => React.JSX.Element> = {
@@ -121,7 +131,9 @@ const PLATFORM_ICONS: Record<string, ({ className }: { className?: string }) => 
     android: ({ className }) => <FaAndroid className={className} />,
     windows: ({ className }) => <FaWindows className={className} />,
     macos: ({ className }) => <TbBrandFinder className={className} />,
-    linux: ({ className }) => <FaLinux className={className} />
+    linux: ({ className }) => <FaLinux className={className} />,
+    appleTV: ({ className }) => <TbDeviceTv className={className} />,
+    androidTV: ({ className }) => <TbDeviceTv className={className} />
 }
 
 function detectPlatform(): TSubscriptionPagePlatformKey {
@@ -194,6 +206,8 @@ export const ConnectWidget = () => {
                                     return (
                                         <div className={classes.platformBtnWrap} key={key}>
                                             <button
+                                                aria-label={t(platforms[key]!.displayName)}
+                                                aria-pressed={active}
                                                 className={classes.platformBtn}
                                                 onClick={() => setActiveKey(key)}
                                                 style={
@@ -226,12 +240,15 @@ export const ConnectWidget = () => {
                                         return (
                                             <div className={classes.appBtnWrap} key={appOption.name}>
                                                 <button
+                                                    aria-label={appOption.name}
+                                                    aria-pressed={activeApp}
                                                     className={`${classes.appBtn} ${activeApp ? classes.appBtnActive : ''}`}
                                                     onClick={() => setSelectedAppIndex(index)}
                                                     type="button"
                                                 >
                                                     {icon && (
                                                         <span
+                                                            aria-hidden="true"
                                                             className={classes.appIcon}
                                                             dangerouslySetInnerHTML={{ __html: icon }}
                                                         />

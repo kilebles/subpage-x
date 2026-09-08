@@ -1,11 +1,12 @@
 import { IconBrandDiscord, IconBrandTelegram, IconBrandVk, IconCheck, IconCopy, IconMessageChatbot, IconQrcode } from '@tabler/icons-react'
-import { ActionIcon, Group, Image, Stack, Text } from '@mantine/core'
+import { ActionIcon, Group, Image, Stack, Text, Tooltip } from '@mantine/core'
 import { modals } from '@mantine/modals'
 import { useState } from 'react'
 import { renderSVG } from 'uqr'
 
 import { constructSubscriptionUrl } from '@shared/utils/construct-subscription-url'
 import { useSubscription } from '@entities/subscription-info-store'
+import { useCurrentLang } from '@entities/app-config-store'
 import { useTranslation } from '@shared/hooks'
 
 import classes from './subscription-link.module.css'
@@ -18,6 +19,7 @@ interface IProps {
 export const SubscriptionLinkWidget = ({ hideGetLink, supportUrl }: IProps) => {
     const subscription = useSubscription()
     const { t, baseTranslations } = useTranslation()
+    const currentLang = useCurrentLang()
     const [copied, setCopied] = useState(false)
 
     const subscriptionUrl = constructSubscriptionUrl(window.location.href, subscription.user.shortUuid)
@@ -36,7 +38,7 @@ export const SubscriptionLinkWidget = ({ hideGetLink, supportUrl }: IProps) => {
 
         modals.open({
             centered: true,
-            title: 'Другое устройство',
+            title: t(baseTranslations.scanQrCode),
             classNames: {
                 content: classes.modalContent,
                 header: classes.modalHeader,
@@ -45,12 +47,14 @@ export const SubscriptionLinkWidget = ({ hideGetLink, supportUrl }: IProps) => {
             children: (
                 <Stack align="center">
                     <Image
-                        alt="QR"
+                        alt={t(baseTranslations.scanQrCode)}
                         src={`data:image/svg+xml;utf8,${encodeURIComponent(qrSvg)}`}
                         style={{ borderRadius: 'var(--mantine-radius-md)' }}
                     />
                     <Text className={classes.qrCaption}>
-                        Вы можете отсканировать qr с другого устройства, предварительно установив приложение.
+                        {currentLang === 'ru'
+                            ? 'Вы можете отсканировать qr с другого устройства, предварительно установив приложение.'
+                            : t(baseTranslations.scanQrCodeDescription)}
                     </Text>
                 </Stack>
             )
@@ -69,44 +73,57 @@ export const SubscriptionLinkWidget = ({ hideGetLink, supportUrl }: IProps) => {
         )
 
         const { icon: Icon } = matchedPlatform ? matchedPlatform[1] : { icon: IconMessageChatbot }
+        const supportName = matchedPlatform
+            ? { 't.me': 'Telegram', 'discord.com': 'Discord', 'vk.com': 'VK' }[matchedPlatform[0]]!
+            : 'Support'
 
         return (
-            <ActionIcon
-                className={classes.actionIcon}
-                component="a"
-                href={supportUrl}
-                radius={0}
-                rel="noopener noreferrer"
-                size={42}
-                target="_blank"
-                variant="default"
-            >
-                <Icon size={18} />
-            </ActionIcon>
+            <Tooltip label={supportName} withArrow>
+                <ActionIcon
+                    aria-label={supportName}
+                    className={classes.actionIcon}
+                    component="a"
+                    href={supportUrl}
+                    radius={0}
+                    rel="noopener noreferrer"
+                    size={42}
+                    target="_blank"
+                    variant="default"
+                >
+                    <Icon size={18} />
+                </ActionIcon>
+            </Tooltip>
         )
     }
 
     return (
-        <Group gap="xs" ml="auto" wrap="nowrap">
+        <Group gap="xs" ms="auto" wrap="nowrap">
             {!hideGetLink && (
-                <button
-                    aria-label={t(baseTranslations.copyLink)}
-                    className={`${classes.qrToggle} ${copied ? classes.qrToggleDone : ''}`}
-                    onClick={handleCopyLink}
-                    type="button"
+                <Tooltip
+                    label={copied ? t(baseTranslations.linkCopied) : t(baseTranslations.copyLink)}
+                    withArrow
                 >
-                    {copied ? <IconCheck size={18} /> : <IconCopy size={18} />}
-                </button>
+                    <button
+                        aria-label={t(baseTranslations.copyLink)}
+                        className={`${classes.qrToggle} ${copied ? classes.qrToggleDone : ''}`}
+                        onClick={handleCopyLink}
+                        type="button"
+                    >
+                        {copied ? <IconCheck size={18} /> : <IconCopy size={18} />}
+                    </button>
+                </Tooltip>
             )}
             {!hideGetLink && (
-                <button
-                    aria-label="Другое устройство"
-                    className={classes.qrToggle}
-                    onClick={handleShowQr}
-                    type="button"
-                >
-                    <IconQrcode size={18} />
-                </button>
+                <Tooltip label={t(baseTranslations.scanQrCode)} withArrow>
+                    <button
+                        aria-label={t(baseTranslations.scanQrCode)}
+                        className={classes.qrToggle}
+                        onClick={handleShowQr}
+                        type="button"
+                    >
+                        <IconQrcode size={18} />
+                    </button>
+                </Tooltip>
             )}
             {supportUrl !== '' && renderSupportLink(supportUrl)}
         </Group>

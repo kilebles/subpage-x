@@ -1,2 +1,4 @@
-FROM remnawave/subscription-page:latest
+# Pinned by digest so both subscription-page servers stay on the same upstream
+# backend. Bump deliberately after checking upstream release notes.
+FROM remnawave/subscription-page:latest@sha256:04e8d479afb3598024e4018e9e15cd7fe879938250090a690ba39f1ee91b79ac
 COPY frontend/dist/ /opt/app/frontend/
