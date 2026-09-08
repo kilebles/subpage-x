@@ -3,33 +3,16 @@
     display: flex;
     flex-direction: column;
     font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-}
-
-.header {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 20px 28px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-    background: rgba(255, 255, 255, 0.02);
-    text-decoration: none;
-    transition: background-color 0.2s;
-}
-
-.header:hover {
-    background: rgba(255, 255, 255, 0.04);
-}
-
-.headerLabel {
-    font-size: 13px;
-    letter-spacing: 0.3em;
-    text-transform: uppercase;
-    color: rgba(255, 255, 255, 0.5);
-    transition: color 0.2s;
-}
-
-.header:hover .headerLabel {
-    color: rgba(255, 255, 255, 0.8);
+    position: relative;
+    z-index: 1;
+    background: rgba(15, 15, 20, 0.9);
+    backdrop-filter: blur(20px) saturate(150%);
+    -webkit-backdrop-filter: blur(20px) saturate(150%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
 .body {
@@ -45,8 +28,14 @@
 
 .layout {
     display: flex;
-    gap: 40px;
+    gap: 24px;
     align-items: flex-start;
+}
+
+@media (min-width: 768px) {
+    .layout {
+        gap: 40px;
+    }
 }
 
 .stepsColumn {
@@ -58,20 +47,23 @@
 
 .switcherRow {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
-    justify-content: space-between;
-    margin-bottom: 24px;
+    gap: 10px 16px;
+    margin-bottom: 20px;
 }
 
 @media (min-width: 768px) {
     .switcherRow {
+        flex-wrap: nowrap;
+        justify-content: space-between;
         margin-bottom: 32px;
     }
 }
 
 .switcherIcons {
     display: flex;
-    gap: 4px;
+    gap: 8px;
 }
 
 .platformBtnWrap {
@@ -79,8 +71,8 @@
 }
 
 .platformBtn {
-    width: 40px;
-    height: 40px;
+    width: 34px;
+    height: 34px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -91,9 +83,97 @@
     transition: all 0.2s;
 }
 
+@media (min-width: 768px) {
+    .platformBtn {
+        width: 40px;
+        height: 40px;
+    }
+}
+
 .platformIcon {
+    width: 16px;
+    height: 16px;
+}
+
+@media (min-width: 768px) {
+    .platformIcon {
+        width: 20px;
+        height: 20px;
+    }
+}
+
+.appSwitcher {
+    display: flex;
+    gap: 8px;
+    margin-left: auto;
+}
+
+.appBtnWrap {
+    position: relative;
+}
+
+.appBtn {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    opacity: 0.4;
+    filter: grayscale(1);
+    transition: all 0.2s;
+}
+
+@media (min-width: 768px) {
+    .appBtn {
+        width: 40px;
+        height: 40px;
+    }
+}
+
+.appBtn:hover {
+    opacity: 0.75;
+}
+
+.appBtnActive {
+    opacity: 1;
+    filter: grayscale(0);
+}
+
+.appBtnActive::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: -6px;
+    transform: translateX(-50%);
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: #a855f7;
+    box-shadow: 0 0 8px 2px rgba(168, 85, 247, 0.6);
+}
+
+.appIcon {
     width: 20px;
     height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+@media (min-width: 768px) {
+    .appIcon {
+        width: 25px;
+        height: 25px;
+    }
+}
+
+.appIcon svg {
+    width: 100%;
+    height: 100%;
 }
 
 .connectorCanvas {
@@ -120,57 +200,9 @@
     transition: opacity 0.2s;
 }
 
-.platformBtnWrap:hover .tooltip {
+.platformBtnWrap:hover .tooltip,
+.appBtnWrap:hover .tooltip {
     opacity: 1;
-}
-
-.qrToggle {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 0 12px;
-    height: 40px;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    color: rgba(255, 255, 255, 0.4);
-    background: transparent;
-    font-family: inherit;
-    font-size: 10px;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.qrToggle:hover {
-    border-color: rgba(255, 255, 255, 0.4);
-    color: rgba(255, 255, 255, 0.7);
-}
-
-.qrToggleActive {
-    border-color: #a855f7;
-    color: #a855f7;
-}
-
-.qrPanel {
-    position: absolute;
-    top: 100%;
-    right: 0;
-    margin-top: 8px;
-    z-index: 20;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    padding: 16px;
-    background: #0d1117;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 12px;
-}
-
-.qrPanelLabel {
-    font-size: 10px;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    color: rgba(255, 255, 255, 0.3);
 }
 
 .platformFade {
@@ -190,7 +222,13 @@
 
 .step {
     display: flex;
-    gap: 32px;
+    gap: 16px;
+}
+
+@media (min-width: 768px) {
+    .step {
+        gap: 32px;
+    }
 }
 
 .stepNodeCol {
@@ -202,12 +240,19 @@
 
 .stepNode {
     position: relative;
-    width: 40px;
-    height: 40px;
+    width: 32px;
+    height: 32px;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
+}
+
+@media (min-width: 768px) {
+    .stepNode {
+        width: 40px;
+        height: 40px;
+    }
 }
 
 .stepGlow {
@@ -229,44 +274,84 @@
 .stepNumber {
     position: relative;
     z-index: 1;
-    font-size: 14px;
+    font-size: 12px;
+}
+
+@media (min-width: 768px) {
+    .stepNumber {
+        font-size: 14px;
+    }
 }
 
 .connectorWrap {
     display: flex;
     flex-direction: column;
     align-items: center;
-    width: 40px;
+    width: 32px;
     flex: 1;
+}
+
+@media (min-width: 768px) {
+    .connectorWrap {
+        width: 40px;
+    }
 }
 
 .stepContent {
     display: flex;
     flex-direction: column;
-    gap: 16px;
-    padding-bottom: 40px;
+    gap: 12px;
+    padding-bottom: 28px;
     min-width: 0;
 }
 
+@media (min-width: 768px) {
+    .stepContent {
+        gap: 16px;
+        padding-bottom: 40px;
+    }
+}
+
 .stepTitle {
-    font-size: 16px;
-    letter-spacing: 0.15em;
+    font-size: 13px;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
     color: rgba(255, 255, 255, 0.9);
 }
 
+@media (min-width: 768px) {
+    .stepTitle {
+        font-size: 16px;
+        letter-spacing: 0.15em;
+    }
+}
+
 .stepDesc {
-    font-size: 16px;
+    font-size: 14px;
     color: rgba(255, 255, 255, 0.5);
-    line-height: 1.6;
+    line-height: 1.5;
     max-width: 32rem;
+    overflow-wrap: break-word;
+}
+
+@media (min-width: 768px) {
+    .stepDesc {
+        font-size: 16px;
+        line-height: 1.6;
+    }
 }
 
 .buttonsRow {
     display: flex;
     align-items: flex-start;
-    gap: 24px;
+    gap: 12px;
     margin-top: 4px;
+}
+
+@media (min-width: 768px) {
+    .buttonsRow {
+        gap: 24px;
+    }
 }
 
 .buttonGroup {

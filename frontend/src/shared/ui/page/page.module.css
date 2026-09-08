@@ -1,5 +1,7 @@
 .page {
     animation: fadeIn 0.5s ease-in-out;
+    min-height: 100vh;
+    background: transparent;
 }
 
 @keyframes fadeIn {

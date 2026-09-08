@@ -1,12 +1,7 @@
 html,
 body {
     min-height: 100vh;
-    background-color: #161b23;
-    background-image:
-        linear-gradient(to right, rgba(128, 128, 128, 0.05) 1px, transparent 1px),
-        linear-gradient(to bottom, rgba(128, 128, 128, 0.05) 1px, transparent 1px);
-    background-size: 60px 60px;
-    background-attachment: fixed;
+    background-color: #080010;
     position: relative;
 }
 
@@ -15,30 +10,15 @@ body {
 }
 
 .animated-background {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    pointer-events: none;
-    z-index: 0;
-    background:
-        radial-gradient(ellipse 60% 40% at 25% 40%, rgba(151, 117, 250, 0.08), transparent 50%),
-        radial-gradient(ellipse 50% 50% at 85% 85%, rgba(34, 211, 238, 0.06), transparent 50%);
+    display: none;
 }
 
 .header-wrapper {
-    position: sticky;
-    top: 0;
-    z-index: 100;
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    background: rgba(22, 27, 35, 0.8);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-
-    @media (min-width: 768px) {
-        border-radius: 0 0 var(--mantine-radius-lg) var(--mantine-radius-lg);
-    }
+    background: rgba(15, 15, 20, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
 }
 
 .logo-text-highlight {

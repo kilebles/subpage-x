@@ -1,17 +1,15 @@
 import { useEffect, useRef, useState } from 'react'
-import {
-    IconCheck,
-    IconCopy,
-    IconExternalLink,
-    IconPlus,
-    IconQrcode,
-    IconWifi
-} from '@tabler/icons-react'
-import { renderSVG } from 'uqr'
+import { IconCheck, IconCopy, IconExternalLink, IconPlus } from '@tabler/icons-react'
+import { TSubscriptionPagePlatformKey } from '@remnawave/subscription-page-types'
 import { FaAndroid, FaApple, FaLinux, FaWindows } from 'react-icons/fa'
 import { TbBrandFinder } from 'react-icons/tb'
 
+import { constructSubscriptionUrl } from '@shared/utils/construct-subscription-url'
+import { getIconFromLibrary } from '@shared/utils/config-parser'
+import { TemplateEngine } from '@shared/utils/template-engine'
 import { useSubscription } from '@entities/subscription-info-store'
+import { useAppConfig } from '@entities/app-config-store'
+import { useTranslation } from '@shared/hooks'
 import classes from './connect-widget.module.css'
 
 function NodeConnector({ color = '168,85,247', delay = 0 }: { color?: string; delay?: number }) {
@@ -105,161 +103,7 @@ function NodeConnector({ color = '168,85,247', delay = 0 }: { color?: string; de
     return <canvas className={classes.connectorCanvas} ref={canvasRef} style={{ display: 'block', minHeight: '3rem', width: '100%' }} />
 }
 
-interface Block {
-    buttons: { link: string; text: string; type: 'external' | 'subscriptionLink' }[]
-    description: string
-    title: string
-}
-
-interface Platform {
-    blocks: Block[]
-    key: string
-    label: string
-}
-
-const PLATFORMS: Platform[] = [
-    {
-        key: 'ios',
-        label: 'iOS',
-        blocks: [
-            {
-                title: 'Скачай приложение',
-                description: 'Установите из App Store и разрешите все доступы в процессе.',
-                buttons: [
-                    {
-                        text: 'App Store (RU)',
-                        type: 'external',
-                        link: 'https://apps.apple.com/ru/app/happ-proxy-utility-plus/id6746188973'
-                    },
-                    {
-                        text: 'App Store (Global)',
-                        type: 'external',
-                        link: 'https://apps.apple.com/us/app/happ-proxy-utility/id6504287215'
-                    }
-                ]
-            },
-            {
-                title: 'Подключай',
-                description: 'VPN добавится в приложение автоматически.',
-                buttons: [{ text: 'Подключить', type: 'subscriptionLink', link: 'happ://add/{{SUBSCRIPTION_LINK}}' }]
-            }
-        ]
-    },
-    {
-        key: 'android',
-        label: 'Android',
-        blocks: [
-            {
-                title: 'Скачай приложение',
-                description: 'Установите приложение из Google Play или скачайте APK напрямую.',
-                buttons: [
-                    {
-                        text: 'Google Play',
-                        type: 'external',
-                        link: 'https://play.google.com/store/apps/details?id=com.happproxy'
-                    },
-                    {
-                        text: 'Скачать APK',
-                        type: 'external',
-                        link: 'https://github.com/Happ-proxy/happ-android/releases/latest/download/Happ.apk'
-                    }
-                ]
-            },
-            {
-                title: 'Подключай',
-                description: 'VPN добавится в приложение автоматически.',
-                buttons: [{ text: 'Подключить', type: 'subscriptionLink', link: 'happ://add/{{SUBSCRIPTION_LINK}}' }]
-            }
-        ]
-    },
-    {
-        key: 'windows',
-        label: 'Windows',
-        blocks: [
-            {
-                title: 'Скачай приложение',
-                description: 'Загрузите установщик и запустите его. Разрешите все доступы в процессе установки.',
-                buttons: [
-                    {
-                        text: 'Скачать для Windows',
-                        type: 'external',
-                        link: 'https://github.com/Happ-proxy/happ-desktop/releases/latest/download/setup-Happ.x64.exe'
-                    }
-                ]
-            },
-            {
-                title: 'Подключай',
-                description: 'VPN добавится в приложение автоматически. Нажмите кнопку включения в приложении.',
-                buttons: [{ text: 'Подключить', type: 'subscriptionLink', link: 'happ://add/{{SUBSCRIPTION_LINK}}' }]
-            }
-        ]
-    },
-    {
-        key: 'macos',
-        label: 'macOS',
-        blocks: [
-            {
-                title: 'Скачай приложение',
-                description: 'Установите из App Store и разрешите все доступы в процессе.',
-                buttons: [
-                    {
-                        text: 'App Store (RU)',
-                        type: 'external',
-                        link: 'https://apps.apple.com/ru/app/happ-proxy-utility-plus/id6746188973'
-                    },
-                    {
-                        text: 'App Store (Global)',
-                        type: 'external',
-                        link: 'https://apps.apple.com/us/app/happ-proxy-utility/id6504287215'
-                    }
-                ]
-            },
-            {
-                title: 'Подключай',
-                description: 'VPN добавится в приложение автоматически.',
-                buttons: [{ text: 'Подключить', type: 'subscriptionLink', link: 'happ://add/{{SUBSCRIPTION_LINK}}' }]
-            }
-        ]
-    },
-    {
-        key: 'linux',
-        label: 'Linux',
-        blocks: [
-            {
-                title: 'Скачай приложение',
-                description: 'Выберите подходящую версию для вашего устройства и установите приложение.',
-                buttons: [
-                    {
-                        text: 'amd64 (.deb)',
-                        type: 'external',
-                        link: 'https://github.com/pluralplay/FlClashX/releases/download/v0.2.1/FlClashX-0.2.1-linux-amd64.deb'
-                    },
-                    {
-                        text: 'amd64 (AppImage)',
-                        type: 'external',
-                        link: 'https://github.com/pluralplay/FlClashX/releases/download/v0.2.1/FlClashX-0.2.1-linux-amd64.AppImage'
-                    },
-                    {
-                        text: 'arm64 (.deb)',
-                        type: 'external',
-                        link: 'https://github.com/pluralplay/FlClashX/releases/download/v0.2.1/FlClashX-0.2.1-linux-arm64.deb'
-                    }
-                ]
-            },
-            {
-                title: 'Добавь подписку',
-                description: 'Нажмите кнопку ниже, чтобы добавить подписку автоматически.',
-                buttons: [
-                    {
-                        text: 'Добавить подписку',
-                        type: 'subscriptionLink',
-                        link: 'flclashx://install-config?url={{SUBSCRIPTION_LINK}}'
-                    }
-                ]
-            }
-        ]
-    }
-]
+const PLATFORM_KEYS: TSubscriptionPagePlatformKey[] = ['ios', 'android', 'windows', 'macos', 'linux']
 
 const PLATFORM_COLORS: Record<
     string,
@@ -280,7 +124,7 @@ const PLATFORM_ICONS: Record<string, ({ className }: { className?: string }) => 
     linux: ({ className }) => <FaLinux className={className} />
 }
 
-function detectPlatform(): string {
+function detectPlatform(): TSubscriptionPagePlatformKey {
     const ua = navigator.userAgent
     if (/android/i.test(ua)) return 'android'
     if (/iphone|ipad|ipod/i.test(ua)) return 'ios'
@@ -292,52 +136,66 @@ function detectPlatform(): string {
 
 export const ConnectWidget = () => {
     const subscription = useSubscription()
-    const subscriptionUrl = subscription.subscriptionUrl
+    const { platforms, svgLibrary } = useAppConfig()
+    const { t } = useTranslation()
 
-    const [activeKey, setActiveKey] = useState(detectPlatform)
-    const [showQr, setShowQr] = useState(false)
+    const subscriptionUrl = constructSubscriptionUrl(window.location.href, subscription.user.shortUuid)
+
+    const availableKeys = PLATFORM_KEYS.filter((key) => (platforms[key]?.apps.length ?? 0) > 0)
+
+    const [activeKey, setActiveKey] = useState<TSubscriptionPagePlatformKey>(() => {
+        const detected = detectPlatform()
+        return availableKeys.includes(detected) ? detected : availableKeys[0]!
+    })
     const [copied, setCopied] = useState(false)
 
-    const handleCopy = () => {
-        navigator.clipboard.writeText(subscriptionUrl)
+    const apps = platforms[activeKey]?.apps ?? []
+    const defaultAppIndex = (key: TSubscriptionPagePlatformKey, list: typeof apps) => {
+        if (key !== 'ios') return 0
+        const incyIndex = list.findIndex((a) => a.name.toUpperCase() === 'INCY')
+        return incyIndex >= 0 ? incyIndex : 0
+    }
+    const [selectedAppIndex, setSelectedAppIndex] = useState(() => defaultAppIndex(activeKey, apps))
+
+    useEffect(() => {
+        setSelectedAppIndex(defaultAppIndex(activeKey, platforms[activeKey]?.apps ?? []))
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [activeKey])
+
+    const app = apps[selectedAppIndex] ?? apps[0]
+    const blocks = app?.blocks ?? []
+    const colors = PLATFORM_COLORS[activeKey]!
+
+    const resolveLink = (link: string) =>
+        TemplateEngine.formatWithMetaInfo(link, {
+            subscriptionUrl,
+            username: subscription.user.username
+        })
+
+    const handleCopy = (link: string) => {
+        navigator.clipboard.writeText(link)
         setCopied(true)
         setTimeout(() => setCopied(false), 2000)
     }
 
-    const platform = PLATFORMS.find((p) => p.key === activeKey)!
-    const colors = PLATFORM_COLORS[activeKey]!
-
-    const resolveLink = (link: string) => link.replace('{{SUBSCRIPTION_LINK}}', subscriptionUrl)
-
-    const qrSvg = renderSVG(resolveLink('happ://add/{{SUBSCRIPTION_LINK}}'), {
-        whiteColor: '#161B22',
-        blackColor: '#A855F7'
-    })
+    if (availableKeys.length === 0) return null
 
     return (
         <div className={classes.root}>
-            <div className={classes.header}>
-                <IconWifi color="#A855F7" size={16} />
-                <span className={classes.headerLabel}>Подключение</span>
-            </div>
-
             <div className={classes.body}>
                 <div className={classes.layout}>
                     <div className={classes.stepsColumn}>
                         <div className={classes.switcherRow}>
                             <div className={classes.switcherIcons}>
-                                {PLATFORMS.map((p) => {
-                                    const Icon = PLATFORM_ICONS[p.key]!
-                                    const active = activeKey === p.key
-                                    const pc = PLATFORM_COLORS[p.key]!
+                                {availableKeys.map((key) => {
+                                    const Icon = PLATFORM_ICONS[key]!
+                                    const active = activeKey === key
+                                    const pc = PLATFORM_COLORS[key]!
                                     return (
-                                        <div className={classes.platformBtnWrap} key={p.key}>
+                                        <div className={classes.platformBtnWrap} key={key}>
                                             <button
                                                 className={classes.platformBtn}
-                                                onClick={() => {
-                                                    setActiveKey(p.key)
-                                                    setShowQr(false)
-                                                }}
+                                                onClick={() => setActiveKey(key)}
                                                 style={
                                                     active
                                                         ? {
@@ -352,38 +210,43 @@ export const ConnectWidget = () => {
                                             >
                                                 <Icon className={classes.platformIcon} />
                                             </button>
-                                            <div className={classes.tooltip}>{p.label}</div>
+                                            <div className={classes.tooltip}>{t(platforms[key]!.displayName)}</div>
                                         </div>
                                     )
                                 })}
                             </div>
 
-                            <div style={{ position: 'relative' }}>
-                                <button
-                                    className={`${classes.qrToggle} ${showQr ? classes.qrToggleActive : ''}`}
-                                    onClick={() => setShowQr((v) => !v)}
-                                    type="button"
-                                >
-                                    <IconQrcode size={13} />
-                                    <span>Другое устройство</span>
-                                </button>
-                                {showQr && (
-                                    <div className={classes.qrPanel}>
-                                        <img
-                                            alt="QR"
-                                            src={`data:image/svg+xml;utf8,${encodeURIComponent(qrSvg)}`}
-                                            style={{ width: 180, height: 180 }}
-                                        />
-                                        <span className={classes.qrPanelLabel}>
-                                            Сканируй с другого устройства
-                                        </span>
-                                    </div>
-                                )}
-                            </div>
+                            {apps.length > 1 && (
+                                <div className={classes.appSwitcher}>
+                                    {apps.map((appOption, index) => {
+                                        const activeApp = index === selectedAppIndex
+                                        const icon = appOption.svgIconKey
+                                            ? getIconFromLibrary(appOption.svgIconKey, svgLibrary)
+                                            : null
+                                        return (
+                                            <div className={classes.appBtnWrap} key={appOption.name}>
+                                                <button
+                                                    className={`${classes.appBtn} ${activeApp ? classes.appBtnActive : ''}`}
+                                                    onClick={() => setSelectedAppIndex(index)}
+                                                    type="button"
+                                                >
+                                                    {icon && (
+                                                        <span
+                                                            className={classes.appIcon}
+                                                            dangerouslySetInnerHTML={{ __html: icon }}
+                                                        />
+                                                    )}
+                                                </button>
+                                                <div className={classes.tooltip}>{appOption.name}</div>
+                                            </div>
+                                        )
+                                    })}
+                                </div>
+                            )}
                         </div>
 
                         <div className={classes.platformFade} key={activeKey}>
-                            {platform.blocks.map((block, i) => (
+                            {blocks.map((block, i) => (
                                 <div className={classes.step} key={i}>
                                     <div className={classes.stepNodeCol}>
                                         <div className={classes.stepNode}>
@@ -399,7 +262,7 @@ export const ConnectWidget = () => {
                                                 {i + 1}
                                             </span>
                                         </div>
-                                        {i < platform.blocks.length - 1 && (
+                                        {i < blocks.length - 1 && (
                                             <div className={classes.connectorWrap}>
                                                 <NodeConnector color={colors.rgb} delay={i * 1.2} />
                                             </div>
@@ -407,18 +270,20 @@ export const ConnectWidget = () => {
                                     </div>
 
                                     <div className={classes.stepContent}>
-                                        <span className={classes.stepTitle}>{block.title}</span>
-                                        <p className={classes.stepDesc}>{block.description}</p>
+                                        <span className={classes.stepTitle}>{t(block.title)}</span>
+                                        <p className={classes.stepDesc}>{t(block.description)}</p>
 
                                         {block.buttons.length > 0 && (
                                             <div className={classes.buttonsRow}>
                                                 <div className={classes.buttonGroup}>
-                                                    {block.buttons.map((btn, j) =>
-                                                        btn.type === 'subscriptionLink' ? (
-                                                            <div className={classes.buttonGroup} key={j}>
+                                                    {block.buttons.map((btn, j) => {
+                                                        if (btn.type === 'subscriptionLink') {
+                                                            const link = resolveLink(btn.link)
+                                                            return (
                                                                 <a
                                                                     className={classes.primaryBtn}
-                                                                    href={resolveLink(btn.link)}
+                                                                    href={link}
+                                                                    key={j}
                                                                     style={{
                                                                         backgroundColor:
                                                                             colors.text === '#ffffff'
@@ -436,22 +301,27 @@ export const ConnectWidget = () => {
                                                                     }}
                                                                 >
                                                                     <IconPlus size={13} />
-                                                                    {btn.text}
+                                                                    {t(btn.text)}
                                                                 </a>
+                                                            )
+                                                        }
+
+                                                        if (btn.type === 'copyButton') {
+                                                            const link = resolveLink(btn.link)
+                                                            return (
                                                                 <button
                                                                     className={`${classes.copyBtn} ${copied ? classes.copyBtnDone : ''}`}
-                                                                    onClick={handleCopy}
+                                                                    key={j}
+                                                                    onClick={() => handleCopy(link)}
                                                                     type="button"
                                                                 >
-                                                                    {copied ? (
-                                                                        <IconCheck size={14} />
-                                                                    ) : (
-                                                                        <IconCopy size={14} />
-                                                                    )}
-                                                                    {copied ? 'Скопировано' : 'Скопировать'}
+                                                                    {copied ? <IconCheck size={14} /> : <IconCopy size={14} />}
+                                                                    {t(btn.text)}
                                                                 </button>
-                                                            </div>
-                                                        ) : (
+                                                            )
+                                                        }
+
+                                                        return (
                                                             <a
                                                                 className={classes.externalBtn}
                                                                 href={btn.link}
@@ -460,10 +330,10 @@ export const ConnectWidget = () => {
                                                                 target="_blank"
                                                             >
                                                                 <IconExternalLink size={13} />
-                                                                {btn.text}
+                                                                {t(btn.text)}
                                                             </a>
                                                         )
-                                                    )}
+                                                    })}
                                                 </div>
                                             </div>
                                         )}

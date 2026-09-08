@@ -44,8 +44,8 @@ export const MainPageComponent = ({ isMobile }: IMainPageComponentProps) => {
 
     return (
         <Page>
-            <Box className="header-wrapper" py="md">
-                <Container maw={1200} px={{ base: 'md', sm: 'lg', md: 'xl' }}>
+            <Container maw={1200} pt="md" px={{ base: 'md', sm: 'lg', md: 'xl' }}>
+                <Box className="header-wrapper" px={{ base: 'md', sm: 'lg', md: 'xl' }} py={{ base: 'sm', md: 'lg' }}>
                     <Group justify="space-between">
                         <Group gap="sm" style={{ userSelect: 'none' }} wrap="nowrap">
                             {hasCustomLogo ? (
@@ -77,8 +77,8 @@ export const MainPageComponent = ({ isMobile }: IMainPageComponentProps) => {
                             supportUrl={config.brandingSettings.supportUrl}
                         />
                     </Group>
-                </Container>
-            </Box>
+                </Box>
+            </Container>
 
             <Container
                 maw={1200}

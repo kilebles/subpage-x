@@ -1,0 +1,2 @@
+FROM remnawave/subscription-page:latest
+COPY frontend/dist/ /opt/app/frontend/
