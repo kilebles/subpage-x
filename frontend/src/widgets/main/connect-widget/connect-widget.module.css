@@ -66,6 +66,109 @@
     gap: 8px;
 }
 
+/* On phones seven unlabelled squares plus two more for the app were cramped
+   and unreadable: the platform collapses into a select, the app becomes a
+   segmented control with names. */
+.mobileSwitchers {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.platformSelect {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    height: 44px;
+    padding: 0 14px;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    background: transparent;
+    font-family: inherit;
+    font-size: 12px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    cursor: pointer;
+}
+
+.platformSelectIcon {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+}
+
+.platformSelectLabel {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.platformSelectChevron {
+    margin-inline-start: auto;
+    flex-shrink: 0;
+    opacity: 0.6;
+}
+
+.appSegment {
+    display: flex;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+.appSegmentBtn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    height: 44px;
+    min-width: 0;
+    border: none;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.5);
+    font-family: inherit;
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.appSegmentBtn + .appSegmentBtn {
+    border-inline-start: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.appSegmentBtnActive {
+    background: rgba(255, 255, 255, 0.07);
+}
+
+.appSegmentIcon {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    filter: grayscale(1);
+    opacity: 0.6;
+}
+
+.appSegmentBtnActive .appSegmentIcon {
+    filter: grayscale(0);
+    opacity: 1;
+}
+
+.appSegmentIcon svg {
+    width: 100%;
+    height: 100%;
+}
+
+.platformSelect:focus-visible,
+.appSegmentBtn:focus-visible {
+    outline: 2px solid #a855f7;
+    outline-offset: 2px;
+}
+
 .platformBtnWrap {
     position: relative;
 }
@@ -214,9 +317,14 @@
     height: 100%;
 }
 
+/* Absolute so the canvas bitmap size never feeds back into layout: its height
+   attribute is its intrinsic size, and resize() multiplies it by the device
+   pixel ratio, which on a 3x screen inflates the gap on every pass. */
 .connectorCanvas {
+    position: absolute;
+    inset: 0;
     width: 100%;
-    flex: 1;
+    height: 100%;
 }
 
 .tooltip {
@@ -351,10 +459,12 @@
 }
 
 .connectorWrap {
+    position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
     width: 32px;
+    min-height: 48px;
     flex: 1;
 }
 

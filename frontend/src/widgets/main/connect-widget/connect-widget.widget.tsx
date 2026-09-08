@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
-import { IconCheck, IconCopy, IconExternalLink, IconPlus } from '@tabler/icons-react'
+import { IconCheck, IconChevronDown, IconCopy, IconExternalLink, IconPlus } from '@tabler/icons-react'
+import { useMediaQuery } from '@mantine/hooks'
+import { Menu } from '@mantine/core'
 import { TSubscriptionPagePlatformKey } from '@remnawave/subscription-page-types'
 import { FaAndroid, FaApple, FaLinux, FaWindows } from 'react-icons/fa'
 import { TbBrandFinder, TbDeviceTv } from 'react-icons/tb'
@@ -26,9 +28,10 @@ function NodeConnector({ color = '168,85,247', delay = 0 }: { color?: string; de
         const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
         const resize = () => {
-            canvas.width = canvas.offsetWidth * window.devicePixelRatio
-            canvas.height = canvas.offsetHeight * window.devicePixelRatio
-            ctx.scale(window.devicePixelRatio, window.devicePixelRatio)
+            const dpr = window.devicePixelRatio
+            canvas.width = canvas.offsetWidth * dpr
+            canvas.height = canvas.offsetHeight * dpr
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
         }
 
         const onMouseMove = (e: MouseEvent) => {
@@ -41,7 +44,8 @@ function NodeConnector({ color = '168,85,247', delay = 0 }: { color?: string; de
 
         window.addEventListener('mousemove', onMouseMove)
         canvas.addEventListener('mouseleave', onMouseLeave)
-        window.addEventListener('resize', resize)
+        const observer = new ResizeObserver(resize)
+        observer.observe(canvas)
         resize()
 
         const draw = () => {
@@ -110,11 +114,11 @@ function NodeConnector({ color = '168,85,247', delay = 0 }: { color?: string; de
             cancelAnimationFrame(rafRef.current)
             window.removeEventListener('mousemove', onMouseMove)
             canvas.removeEventListener('mouseleave', onMouseLeave)
-            window.removeEventListener('resize', resize)
+            observer.disconnect()
         }
     }, [delay, color])
 
-    return <canvas aria-hidden="true" className={classes.connectorCanvas} ref={canvasRef} style={{ display: 'block', minHeight: '3rem', width: '100%' }} />
+    return <canvas aria-hidden="true" className={classes.connectorCanvas} ref={canvasRef} />
 }
 
 const PLATFORM_KEYS: TSubscriptionPagePlatformKey[] = [
@@ -167,6 +171,10 @@ export const ConnectWidget = () => {
     const subscription = useSubscription()
     const { platforms, svgLibrary } = useAppConfig()
     const { t } = useTranslation()
+    // Resolved on first render, otherwise the desktop switcher flashes on phones.
+    const isMobile = useMediaQuery('(max-width: 767px)', false, {
+        getInitialValueInEffect: false
+    })
 
     const subscriptionUrl = constructSubscriptionUrl(window.location.href, subscription.user.shortUuid)
 
@@ -214,6 +222,73 @@ export const ConnectWidget = () => {
             <div className={classes.body}>
                 <div className={classes.layout}>
                     <div className={classes.stepsColumn}>
+                        {isMobile ? (
+                            <div className={classes.mobileSwitchers}>
+                                <Menu position="bottom-start" shadow="md" width="target" withinPortal>
+                                    <Menu.Target>
+                                        <button
+                                            aria-label={t(platforms[activeKey]!.displayName)}
+                                            className={classes.platformSelect}
+                                            style={{ borderColor: colors.border, color: colors.text }}
+                                            type="button"
+                                        >
+                                            {(() => {
+                                                const ActiveIcon = PLATFORM_ICONS[activeKey]!
+                                                return <ActiveIcon className={classes.platformSelectIcon} />
+                                            })()}
+                                            <span className={classes.platformSelectLabel}>
+                                                {t(platforms[activeKey]!.displayName)}
+                                            </span>
+                                            <IconChevronDown className={classes.platformSelectChevron} size={16} />
+                                        </button>
+                                    </Menu.Target>
+                                    <Menu.Dropdown>
+                                        {availableKeys.map((key) => {
+                                            const Icon = PLATFORM_ICONS[key]!
+                                            return (
+                                                <Menu.Item
+                                                    key={key}
+                                                    leftSection={<Icon className={classes.platformSelectIcon} />}
+                                                    onClick={() => setActiveKey(key)}
+                                                >
+                                                    {t(platforms[key]!.displayName)}
+                                                </Menu.Item>
+                                            )
+                                        })}
+                                    </Menu.Dropdown>
+                                </Menu>
+
+                                {apps.length > 1 && (
+                                    <div className={classes.appSegment} role="group">
+                                        {apps.map((appOption, index) => {
+                                            const activeApp = index === selectedAppIndex
+                                            const icon = appOption.svgIconKey
+                                                ? getIconFromLibrary(appOption.svgIconKey, svgLibrary)
+                                                : null
+                                            return (
+                                                <button
+                                                    aria-pressed={activeApp}
+                                                    className={`${classes.appSegmentBtn} ${activeApp ? classes.appSegmentBtnActive : ''}`}
+                                                    key={appOption.name}
+                                                    onClick={() => setSelectedAppIndex(index)}
+                                                    style={activeApp ? { color: colors.text } : undefined}
+                                                    type="button"
+                                                >
+                                                    {icon && (
+                                                        <span
+                                                            aria-hidden="true"
+                                                            className={classes.appSegmentIcon}
+                                                            dangerouslySetInnerHTML={{ __html: icon }}
+                                                        />
+                                                    )}
+                                                    {appOption.name}
+                                                </button>
+                                            )
+                                        })}
+                                    </div>
+                                )}
+                            </div>
+                        ) : (
                         <div className={classes.switcherRow}>
                             <div className={classes.switcherIcons}>
                                 {availableKeys.map((key) => {
@@ -286,6 +361,7 @@ export const ConnectWidget = () => {
                                 </div>
                             )}
                         </div>
+                        )}
 
                         <div className={classes.platformFade} key={activeKey}>
                             {blocks.map((block, i) => (
